@@ -4,7 +4,6 @@ on:
   workflow_dispatch: {}
 
 env:
-  applicationfolder: aws-shopping-car
   AWS_REGION: us-east-2
   S3BUCKET: shippingcartcodedeploystack-webappdeploymentbucket-6k18qqhkvdkj
 
@@ -43,11 +42,10 @@ jobs:
 
       - name: Build and Package Maven
         id: package
-        working-directory: ${{ env.applicationfolder }}
-        run: $GITHUB_WORKSPACE/.github/scripts/build.sh
+        run: .github/scripts/build.sh
 
       - name: Upload Artifact to s3
-        working-directory: ${{ env.applicationfolder }}/build/libs
+        working-directory: build/libs
         run: aws s3 cp *.war s3://${{ env.S3BUCKET }}/
         
   deploy:
