@@ -5,7 +5,7 @@ on:
 
 env:
   AWS_REGION: us-east-2
-  S3BUCKET: shippingcartcodedeploystack-webappdeploymentbucket-6k18qqhkvdkj
+  S3BUCKET: shopping-cart-templates
 
 
 jobs:
@@ -46,7 +46,10 @@ jobs:
 
       - name: Upload Artifact to s3
         working-directory: build/libs
-        run: aws s3 cp *.war s3://${{ env.S3BUCKET }}/
+        run: |
+          pwd
+          ls -la
+          aws s3 cp *.war s3://${{ env.S3BUCKET }}/
         
   deploy:
     needs: build
@@ -65,4 +68,4 @@ jobs:
     - run: |
         echo "Deploying branch ${{ env.GITHUB_REF }} to ${{ github.event.inputs.environment }}"
         commit_hash=`git rev-parse HEAD`
-        aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures
+        aws deploy create-deployment --application-name CodeDeployShoppingCartWithASG --deployment-group-name CodeDeployGroupNameShoppingCart --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures

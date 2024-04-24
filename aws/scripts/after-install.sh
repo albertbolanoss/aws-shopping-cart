@@ -3,7 +3,7 @@ set -xe
 
 
 # Copy war file from S3 bucket to tomcat webapp folder
-aws s3 cp shoppingcartstact-webappdeploymentbucket-mjskvvdzfmqx/aws-shopping-car-1.0-SNAPSHOT.war /usr/local/tomcat10/webapps/aws-shopping-car-1.0-SNAPSHOT.war
+aws s3 cp shopping-cart-templates/aws-shopping-car-1.0-SNAPSHOT.war /usr/local/tomcat10/webapps/aws-shopping-car-1.0-SNAPSHOT.war
 
 
 # Ensure the ownership permissions are correct.

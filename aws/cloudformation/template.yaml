@@ -291,14 +291,14 @@ Resources:
   WebappApplication:
     Type: AWS::CodeDeploy::Application
     Properties:
-      ApplicationName: CodeDeployAppNameWithASG
+      ApplicationName: CodeDeployShoppingCartWithASG
   WebappDeploymentGroup:
     Type: AWS::CodeDeploy::DeploymentGroup
     Properties:
       ApplicationName: !Ref WebappApplication
       ServiceRoleArn: !GetAtt CodeDeployRole.Arn
       DeploymentConfigName: CodeDeployDefault.OneAtATime
-      DeploymentGroupName: CodeDeployGroupName
+      DeploymentGroupName: CodeDeployGroupNameShoppingCart
       AutoRollbackConfiguration:
           Enabled: true
           Events:
@@ -337,6 +337,7 @@ Resources:
   WebappDeploymentBucket:
     Type: AWS::S3::Bucket
     Properties:
+      BucketName: "shopping-cart-templates"
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
