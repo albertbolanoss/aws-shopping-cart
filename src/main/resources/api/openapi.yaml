@@ -1,0 +1,292 @@
+openapi: 3.0.0
+info:
+  title: Shopping Cart API Specification
+  description: >
+    'It is an *** API *** that exposes the basic functionality of a shopping cart designed for a distributed environment.'
+  termsOfService: https://github.com/albertbolanoss/aws-shopping-car/blob/main/LICENSE
+  contact:
+    name: Labs Soft.
+    url: https://www.labssoft.com
+    email: support@labssoft.com
+  license:
+    name: MIT
+    url: https://github.com/albertbolanoss/aws-shopping-car/blob/main/LICENSE
+  version: 1.0.0
+externalDocs:
+  description: Additional documentation about shopping car or author information
+  url: http://swagger.io
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: cart
+    description: 'the shopping cart transactions such as: Get items, Add item, Remove item'
+
+paths:
+  /api/v1/cart:
+    get:
+      tags: [ cart ]
+      summary: get cart items
+      description: get the user's cart items
+      operationId: getItems
+      responses:
+        200:
+          description: get the cart items successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetItemResBody'
+        default:
+          description: Unexpected error.
+    delete:
+      tags: [ cart ]
+      summary: remove all items.
+      description: remove all items from the user's cart
+      operationId: removeAllItems
+      responses:
+        202:
+          description: all items were removed from the cart.
+        default:
+          description: Unexpected error.
+
+  /api/v1/product/{productCode}/cart:
+    post:
+      tags: [ cart ]
+      summary: add a product.
+      description: add a product to the user's cart
+      operationId: addProduct
+      parameters:
+        - name: productCode
+          in: path
+          description: the product code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProductReqBody'
+      responses:
+        201:
+          description: the product was added successfully.
+        404:
+          description: the product was not found or is not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResBody'
+        400:
+          description: the information provided is incorrect or missing information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResBody'
+        default:
+          description: Unexpected error.
+    patch:
+      tags: [ cart ]
+      summary: add a item(s).
+      description: add item(s) to the user's cart
+      operationId: addItem
+      parameters:
+        - name: productCode
+          in: path
+          description: the product code
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddItemReqBody'
+      responses:
+        201:
+          description: the item was updated successfully.
+        404:
+          description: the product was not found or is not available
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResBody'
+        400:
+          description: the information provided is incorrect or missing information.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResBody'
+        default:
+          description: Unexpected error.
+    delete:
+      tags: [ cart ]
+      summary: remove a product.
+      description: remove a product from the user's cart
+      operationId: removeProduct
+      parameters:
+        - name: productCode
+          in: path
+          description: the product code
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: the product was removed from the user's cart.
+        404:
+          description: The product is not in the user's cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResBody'
+        default:
+          description: Unexpected error.
+
+  /api/v1/cart/checkout:
+    get:
+      tags: [ cart ]
+      summary: get checkout summary
+      description: get the checkout summary of the user's cart
+      operationId: getCheckout
+      parameters:
+        - in: query
+          name: paymentMethodQuery
+          schema:
+            type: string
+          style: form
+          explode: false
+          description: The payment method (VISA, MASTERCARD, CASH)
+          required: true
+      responses:
+        200:
+          description: the checkout summary was generated successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GetCheckoutResBody'
+        default:
+          description: Unexpected error.
+
+components:
+  schemas:
+    AddProductReqBody:
+      description: The Add Product Request Body
+      type: object
+      properties:
+        price:
+          description: The product price
+          type: number
+          format: number
+        quantity:
+          description: The quantity of product items to add
+          type: integer
+          format: int32
+      required:
+        - price
+        - quantity
+    AddItemReqBody:
+      description: The product information
+      type: object
+      properties:
+        quantity:
+          description: The quantity of product items to add
+          type: integer
+          format: int32
+      required:
+        - quantity
+    GetItemResBody:
+      description: the checkout items
+      type: object
+      properties:
+        code:
+          description: the product's code
+          type: string
+        quantity:
+          description: the item's price quantity
+          type: integer
+          format: int32
+        price:
+          description: the item's price per unit
+          type: number
+          format: number
+        subtotal:
+          description: the items subtotal
+          type: number
+          format: number
+    GetCheckoutItemResBody:
+      description: the checkout items
+      type: object
+      properties:
+        code:
+          description: the product's code
+          type: string
+        quantity:
+          description: the item's price quantity
+          type: integer
+          format: int32
+        price:
+          description: the item's price per unit
+          type: number
+          format: number
+        subtotal:
+          description: the item subtotal
+          type: number
+          format: number
+    GetCheckoutResBody:
+      description: the checkout summary
+      type: object
+      properties:
+        subtotal:
+          description: the gross total
+          type: number
+          format: number
+        discount:
+          description: the applied discount
+          type: number
+          format: number
+        total:
+          description: the total amount due
+          type: number
+          format: number
+        items:
+          description: the items
+          type: array
+          items:
+            $ref: '#/components/schemas/GetCheckoutItemResBody'
+    ProductItemReqBody:
+      description: the cart items
+      type: object
+      properties:
+        code:
+          description: the product's code
+          type: string
+        quantity:
+          description: the item's price quantity
+          type: integer
+          format: int32
+        price:
+          description: the item's price per unit
+          type: number
+          format: number
+    ErrorResBody:
+      type: object
+      properties:
+        errorCode:
+          type: string
+        message:
+          type: string
+        status:
+          type: integer
+          format: int32
+        url:
+          type: string
+        reqMethod:
+          type: string
+      xml:
+        name: Error
+

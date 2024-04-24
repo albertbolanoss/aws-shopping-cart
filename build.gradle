@@ -1,0 +1,86 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.3'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.hidetake.swagger.generator' version '2.19.2'
+}
+
+group = 'com.labs.shoppingcart'
+version = '0.0.1-SNAPSHOT'
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = '17'
+}
+
+ext {
+    springVersion = '3.2.5'
+}
+
+processResources {
+    dependsOn(generateSwaggerCode)
+}
+
+swaggerSources {
+    def typeMappings = 'URI=URI'
+    def importMappings = 'URI=java.net.URI'
+    shoppingCar {
+        def apiYaml = "${rootDir}/src/main/resources/api/openapi.yaml"
+        def configJson = "${rootDir}/src/main/resources/api/config.json"
+        inputFile = file(apiYaml)
+        def ignoreFile = file("${rootDir}/src/main/resources/api/.openapi-generator-ignore")
+        code {
+            language = 'spring'
+            configFile = file(configJson)
+            rawOptions = ['--ignore-file-override', ignoreFile, '--type-mappings',
+                          typeMappings, '--import-mappings', importMappings] as List<String>
+            components = [models: true, apis: true, supportingFiles: 'ApiUtil.java']
+            dependsOn validation
+        }
+    }
+}
+
+compileJava.dependsOn swaggerSources.shoppingCar.code
+sourceSets.main.java.srcDir "${swaggerSources.shoppingCar.code.outputDir}/src/main/java"
+sourceSets.main.resources.srcDir "${swaggerSources.shoppingCar.code.outputDir}/src/main/resources"
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring Framework
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-validation:$springVersion"
+    implementation "org.springframework.boot:spring-boot-starter-hateoas:$springVersion"
+
+    // OpenAPI
+    implementation 'io.springfox:springfox-oas:3.0.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
+    implementation 'org.springdoc:springdoc-openapi-data-rest:1.8.0'
+    swaggerCodegen 'org.openapitools:openapi-generator-cli:6.2.1'
+
+    // Other implementation dependencies
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.4'
+
+    // tests
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springVersion"
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'net.datafaker:datafaker:2.1.0'
+
+    // Compile, and annotationProcessor, and developmentOnly
+    compileOnly 'io.swagger:swagger-annotations:1.6.4'
+    compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+    annotationProcessor 'org.projectlombok:lombok:1.18.20'
+    developmentOnly "org.springframework.boot:spring-boot-devtools:$springVersion"
+
+}
+
+test {
+    useJUnitPlatform()
+}
