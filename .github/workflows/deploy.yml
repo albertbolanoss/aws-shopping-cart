@@ -40,9 +40,9 @@ jobs:
       - name: chmod
         run: chmod -R +x ./.github
 
-      - name: Build and Package Maven
+      - name: Gradle clean, build, test
         id: package
-        run: .github/scripts/build.sh
+        run: .github/scripts/gradleTask.sh
 
       - name: Upload Artifact to s3
         working-directory: build/libs

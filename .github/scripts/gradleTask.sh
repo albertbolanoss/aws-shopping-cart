@@ -2,6 +2,6 @@
 set -xe
 
   # Gradle is used to build  and create a war file.
-  ./gradlew clean build
+  gradle clean build test
 
 
