@@ -398,29 +398,30 @@ Resources:
         "Fn::Base64":
           !Sub |
               #!/bin/bash
-
-              yum  install -y java-1.8.0-openjdk-devel wget
+          
+              yum update -y
+              yum install java-17-amazon-corretto -y
               java -version
               cd /usr/local
-              wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.zip
-              wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.zip.asc
-              wget https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.43/bin/apache-tomcat-9.0.43.zip.sha512
+              wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.23/bin/apache-tomcat-10.1.23.zip
+              wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.23/bin/apache-tomcat-10.1.23.zip.asc
+              wget https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.23/bin/apache-tomcat-10.1.23.zip.sha512
 
               # verify hash / are these two outputs the same
-              cat apache-tomcat-9.0.43.zip.sha512
-              sha512sum apache-tomcat-9.0.43.zip
-
-              gpg --keyserver pgpkeys.mit.edu --recv-key A9C5DF4D22E99998D9875A5110C01C5A2F6059E7
-              gpg --verify apache-tomcat-9.0.43.zip.asc apache-tomcat-9.0.43.zip
+              #cat apache-tomcat-10.1.23.zip.sha512
+              #sha512sum apache-tomcat-10.1.23.zip.asc
+          
+              #gpg --keyserver pgpkeys.mit.edu --recv-key A9C5DF4D22E99998D9875A5110C01C5A2F6059E7
+              #gpg --verify apache-tomcat-10.1.23.zip.asc apache-tomcat-10.1.23.zip
 
               # if hash and signature are ok:
-              unzip apache-tomcat-9.0.43.zip
-              mv apache-tomcat-9.0.43 tomcat9
-              echo 'JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true "' > /usr/local/tomcat9/bin/setenv.sh
-              ls -la tomcat9/
+              unzip apache-tomcat-10.1.23.zip
+              mv apache-tomcat-10.1.23 tomcat10
+              echo 'JAVA_OPTS="$JAVA_OPTS -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv4Addresses=true "' > /usr/local/tomcat10/bin/setenv.sh
+              ls -la tomcat10/
               useradd -r tomcat
-              chown -R tomcat:tomcat /usr/local/tomcat9
-              ls -l /usr/local/tomcat9
+              chown -R tomcat:tomcat /usr/local/tomcat10
+              ls -l /usr/local/tomcat10
 
               echo "[Unit]
               Description=Apache Tomcat Server
@@ -431,12 +432,12 @@ Resources:
               User=tomcat
               Group=tomcat
 
-              Environment=CATALINA_PID=/usr/local/tomcat9/temp/tomcat.pid
-              Environment=CATALINA_HOME=/usr/local/tomcat9
-              Environment=CATALINA_BASE=/usr/local/tomcat9
+              Environment=CATALINA_PID=/usr/local/tomcat10/temp/tomcat.pid
+              Environment=CATALINA_HOME=/usr/local/tomcat10
+              Environment=CATALINA_BASE=/usr/local/tomcat10
 
-              ExecStart=/usr/local/tomcat9/bin/catalina.sh start
-              ExecStop=/usr/local/tomcat9/bin/catalina.sh stop
+              ExecStart=/usr/local/tomcat10/bin/catalina.sh start
+              ExecStop=/usr/local/tomcat10/bin/catalina.sh stop
 
               RestartSec=10
               Restart=always
@@ -446,7 +447,7 @@ Resources:
               # firewall-cmd --zone=public --permanent --add-port=8080/tcp
               # firewall-cmd --zone=public --permanent --add-port=8443/tcp
               # firewall-cmd --reload
-              cd /usr/local/tomcat9/bin && chmod +x catalina.sh
+              cd /usr/local/tomcat10/bin && chmod +x catalina.sh
               systemctl daemon-reload
               systemctl start tomcat.service
               systemctl enable tomcat.service

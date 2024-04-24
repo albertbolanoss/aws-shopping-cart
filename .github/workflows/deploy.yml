@@ -4,9 +4,9 @@ on:
   workflow_dispatch: {}
 
 env:
-  applicationfolder: shippingCartApp
-  AWS_REGION: ### Reqion ###
-  S3BUCKET: ### S3 Bucket URL ###
+  applicationfolder: aws-shopping-car
+  AWS_REGION: us-east-2
+  S3BUCKET: shippingcartcodedeploystack-webappdeploymentbucket-6k18qqhkvdkj
 
 
 jobs:
@@ -32,6 +32,12 @@ jobs:
            java-version: '17'
            distribution: 'adopt'
 
+      - name: Install Gradle
+        run: |
+          wget https://services.gradle.org/distributions/gradle-7.3-bin.zip
+          unzip -d $HOME gradle-7.3-bin.zip
+          export PATH=$HOME/gradle-7.3/bin:$PATH
+
       - name: chmod
         run: chmod -R +x ./.github
 
@@ -41,7 +47,7 @@ jobs:
         run: $GITHUB_WORKSPACE/.github/scripts/build.sh
 
       - name: Upload Artifact to s3
-        working-directory: ${{ env.applicationfolder }}/target
+        working-directory: ${{ env.applicationfolder }}/build/libs
         run: aws s3 cp *.war s3://${{ env.S3BUCKET }}/
         
   deploy:
