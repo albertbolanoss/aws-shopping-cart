@@ -5,7 +5,7 @@ on:
 
 env:
   AWS_REGION: us-east-2
-  S3BUCKET: shopping-cart-templates
+  S3BUCKET: codedeploystack-webappdeploymentbucket-09pf6atv8xuw
 
 
 jobs:
@@ -47,9 +47,8 @@ jobs:
       - name: Upload Artifact to s3
         working-directory: build/libs
         run: |
-          pwd
           ls -la
-          aws s3 cp *.war s3://${{ env.S3BUCKET }}/
+          aws s3 cp aws-shopping-car-1.0-SNAPSHOT.war s3://${{ env.S3BUCKET }}/
         
   deploy:
     needs: build
@@ -59,13 +58,13 @@ jobs:
       id-token: write
       contents: read
     steps:
-    - uses: actions/checkout@v2
-    - uses: aws-actions/configure-aws-credentials@v1
-      with:
-        role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
-        role-session-name: GitHub-Action-Role
-        aws-region: ${{ env.AWS_REGION }}
-    - run: |
-        echo "Deploying branch ${{ env.GITHUB_REF }} to ${{ github.event.inputs.environment }}"
-        commit_hash=`git rev-parse HEAD`
-        aws deploy create-deployment --application-name CodeDeployShoppingCartWithASG --deployment-group-name CodeDeployGroupNameShoppingCart --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures
+      - uses: actions/checkout@v2
+      - uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.IAMROLE_GITHUB }}
+          role-session-name: GitHub-Action-Role
+          aws-region: ${{ env.AWS_REGION }}
+      - run: |
+          echo "Deploying branch ${{ env.GITHUB_REF }} to ${{ github.event.inputs.environment }}"
+          commit_hash=`git rev-parse HEAD`
+          aws deploy create-deployment --application-name CodeDeployAppNameWithASG --deployment-group-name CodeDeployGroupName --github-location repository=$GITHUB_REPOSITORY,commitId=$commit_hash --ignore-application-stop-failures
