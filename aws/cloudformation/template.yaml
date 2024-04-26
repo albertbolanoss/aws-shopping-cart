@@ -463,7 +463,7 @@ Resources:
               # firewall-cmd --zone=public --permanent --add-port=8080/tcp
               # firewall-cmd --zone=public --permanent --add-port=8443/tcp
               # firewall-cmd --reload
-              chmod +w /usr/local/tomcat10/webapps
+              sudo chown -R tomcat:tomcat /usr/local/tomcat10/webapps
               cd /usr/local/tomcat10/bin
               chmod +x catalina.sh
               systemctl daemon-reload
@@ -539,7 +539,7 @@ Outputs:
       - ''
       - - http://
         - !GetAtt ApplicationLoadBalancer.DNSName
-        - ':8080/SpringBootHelloWorldExampleApplication'
+        - ':8080/shoppingcart/'
   DeploymentGroup:
     Description: Webapp Deployment Group
     Value: !Ref WebappDeploymentGroup

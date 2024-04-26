@@ -40,7 +40,7 @@ jobs:
       - name: chmod
         run: chmod -R +x ./.github
 
-      - name: Gradle clean, build, test
+      - name: Build Artifact and test
         id: package
         run: .github/scripts/gradleTask.sh
 
@@ -48,7 +48,7 @@ jobs:
         working-directory: build/libs
         run: |
           ls -la
-          aws s3 cp aws-shopping-car-1.0-SNAPSHOT.jar s3://${{ env.S3BUCKET }}/
+          aws s3 cp aws-shopping-car-1.0.0.war s3://${{ env.S3BUCKET }}/
         
   deploy:
     needs: build
