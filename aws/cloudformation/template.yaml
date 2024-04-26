@@ -333,10 +333,24 @@ Resources:
           Ref: ALBSecurityGroup
       SecurityGroupEgress:
       - IpProtocol: '-1'
-        CidrIp: 0.0.0.0/0      
+        CidrIp: 0.0.0.0/0
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: allow access to SSH for VM
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          "CidrIp" : "0.0.0.0/0"
+      SecurityGroupEgress:
+        - IpProtocol: '-1'
+          CidrIp: 0.0.0.0/0
   WebappDeploymentBucket:
     Type: AWS::S3::Bucket
     Properties:
+      BucketName: codedeploystack-webappdeploymentbucket-09pf6atv8xuw
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -392,8 +406,10 @@ Resources:
         Ref: InstanceType
       SecurityGroups:
         - Ref: WebappSecurityGroup
+        - Ref: SSHSecurityGroup
       IamInstanceProfile:
         Ref: WebappInstanceProfile
+      KeyName: AWS_Labs_Servers
       UserData:
         "Fn::Base64":
           !Sub |
@@ -447,11 +463,13 @@ Resources:
               # firewall-cmd --zone=public --permanent --add-port=8080/tcp
               # firewall-cmd --zone=public --permanent --add-port=8443/tcp
               # firewall-cmd --reload
-              cd /usr/local/tomcat10/bin && chmod +x catalina.sh
+              chmod +w /usr/local/tomcat10/webapps
+              cd /usr/local/tomcat10/bin
+              chmod +x catalina.sh
               systemctl daemon-reload
               systemctl start tomcat.service
               systemctl enable tomcat.service
-              systemctl status tomcat.service
+              #systemctl status tomcat.service
               yum install ruby -y
               wget https://aws-codedeploy-${AWS::Region}.s3.${AWS::Region}.amazonaws.com/latest/install
               chmod +x ./install
@@ -521,7 +539,7 @@ Outputs:
       - ''
       - - http://
         - !GetAtt ApplicationLoadBalancer.DNSName
-        - ':8080/shoppingcart'
+        - ':8080/SpringBootHelloWorldExampleApplication'
   DeploymentGroup:
     Description: Webapp Deployment Group
     Value: !Ref WebappDeploymentGroup
