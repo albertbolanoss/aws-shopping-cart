@@ -8,6 +8,7 @@ import com.perficient.shoppingcart.application.api.model.ProductItemReqBody;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.context.annotation.SessionScope;
 
 import java.math.BigDecimal;
@@ -15,6 +16,7 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
@@ -22,11 +24,14 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CartController implements CartApi {
     private final AbstractMap<String, ProductItemReqBody> productItems = new ConcurrentHashMap<>();
 
+    @Override
     public ResponseEntity<Void> addItem(String productCode, AddItemReqBody addItemReqBody) {
-        var addProductReqBody = productItems.get(productCode);
+        var addProductReqBody = Optional.ofNullable(productItems.get(productCode))
+                        .orElseThrow(() -> new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+
         productItems.put(productCode, new ProductItemReqBody()
                 .code(productCode)
-                .quantity(addProductReqBody.getQuantity())
+                .quantity(addItemReqBody.getQuantity())
                 .price(addProductReqBody.getPrice()));
 
         return new ResponseEntity<>(HttpStatus.CREATED);
@@ -41,6 +46,7 @@ public class CartController implements CartApi {
 
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
+
 
     @Override
     public ResponseEntity<List<GetItemResBody>> getItems() {
@@ -57,5 +63,25 @@ public class CartController implements CartApi {
         }
 
         return ResponseEntity.ok(getItemResBodies);
+    }
+
+
+    @Override
+    public ResponseEntity<Void> removeAllItems() {
+        productItems.clear();
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @Override
+    public ResponseEntity<Void> removeProduct(String productCode) {
+        var product =  Optional.ofNullable(productItems.get(productCode));
+
+        if (product.isPresent()) {
+            productItems.remove(productCode);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

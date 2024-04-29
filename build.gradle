@@ -17,7 +17,9 @@ java {
 }
 
 ext {
-    springVersion = '3.2.5'
+    springBootVersion = '3.2.5'
+    awsSdkVersion = '2.25.40'
+    openApiVersion = '3.0.0'
 }
 
 processResources {
@@ -55,20 +57,23 @@ repositories {
 dependencies {
     // Spring Framework
     implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-validation:$springVersion"
-    implementation "org.springframework.boot:spring-boot-starter-hateoas:$springVersion"
+    implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
+    implementation "org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion"
 
     // OpenAPI
-    implementation 'io.springfox:springfox-oas:3.0.0'
+    implementation "io.springfox:springfox-oas:$openApiVersion"
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
     implementation 'org.springdoc:springdoc-openapi-data-rest:1.8.0'
     swaggerCodegen 'org.openapitools:openapi-generator-cli:6.2.1'
+
+    // AWS SDK
+    implementation "software.amazon.awssdk:dynamodb:$awsSdkVersion"
 
     // Other implementation dependencies
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.4'
 
     // tests
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'net.datafaker:datafaker:2.1.0'
@@ -78,7 +83,7 @@ dependencies {
     compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    developmentOnly "org.springframework.boot:spring-boot-devtools:$springVersion"
+    developmentOnly "org.springframework.boot:spring-boot-devtools:$springBootVersion"
 
 }
 
