@@ -49,13 +49,15 @@ The following is a list of the allowed operations in the API specification:
 
 | Method | URI                              | Description                                         |
 |--------|----------------------------------|-----------------------------------------------------|
+| Get    | /api/v1/token/csrf               | Get the Cross-Site Request Forgery token            |
+| POST   | /api/v1/token                    | Authetication                                       |
 | POST   | /api/v1/product/{productId}/item | Add Item to Cart                                    |
 | Delete | /api/v1/product/{productId}/item | Delete an Item from Cart                            |
 | Get    | /api/v1/product/{productId}/item | Get the Items from the Cart                         |
 | Delete | /api/v1/items                    | Delete all the Items from the Cart                  |
 | POST   | /api/v1/checkout                 | Checkout the items in the cart                      |  
-| POST   | /api/v1/user                 | Create a new user                                   |
-| Get    | /api/v1/user                 | Get the user information filter by query parameters |
+| POST   | /api/v1/user                     | Create a new user                                   |
+| Get    | /api/v1/user                     | Get the user information filter by query parameters |
 
 ## Run the tests
 
@@ -64,69 +66,25 @@ To build execute the following command
 ./gradlew bootTestRun
 ```
 
-## Project folder description
+## Project folder and key files description
 
-- src/main/resources/design: The design of system.
 - .github/workflow: Github Action workflow.
-- src/main/resources/application.yml: the spring application configuration.
-- src/main/resources/api:  Open API Specification definition.
+- aws: Infrastructure as code definition (AWS Cloud Formation)
+- src/main/resources/application.yml: The spring application configuration.
+- src/main/resources/api: Open API Specification definition.
 - src/main/resources/config/liquibase:  Liquibase database change management.
-- src/main/java/com/perficient/shoppingcart/application: the application layer.
-- src/main/java/com/perficient/shoppingcart/domain: the domain layer.
-- src/main/java/com/perficient/shoppingcart/infrastructure: the infrastructure layer.
-- src/test/java/com/perficient/shoppingcart: unit test and component tests.
+- src/main/java/com/ecommerce/shared: the transversal or shared module 
+- src/main/java/com/ecommerce/cart: the cart module.
+- src/main/java/com/ecommerce/user: the user modules.
 - src/test/resources/application.yml: the spring test configuration.
-- src/test/java/challenge: it contains the initial class of the challenge (See the next session for more information).
-
-## Design
-
-The scope of this application is to allow shopping cart transactions as well as create purchase orders and manage products and their stock and the administration of system users.
-
-The current implementation defines a monolith type architecture (not scalable).  In the next steps a distributed and scalable architecture will be defined.
-
-### Actor user cases
-
-![Shopping Cart Actor](src/main/resources/design/Shopping_cart_Actor.png)
-
-### E-commerce application architecture style
-
-- Hexagonal
-- Domain partitioning
-
-![Shopping Cart Architecture](src/main/resources/design/Eccomerce_Architecture_v1.drawio.png)
-
-![Shopping Cart Architecture](src/main/resources/design/Shopping_cart_hexagonal_arc_pattern.png)
-
-### E-commerce application design patterns
-
-- Strategy
-- Dependency Injection
-
-### Development software methodology
-
-- Domain Driver Design software development methodology
+- src/test/java/com/ecommerce: the unit tests
+- build.gradle: the grade build definition
 
 
 ## Next Steps 
+- Integrate with OAUTH2.0 
 
-### Next Step E-commerce application architecture styles (scalable, distributed)
-
-Enables more scalability of shipping cart services and management of products and purchase orders.
-This solution includes the following architecture styles:
-
-- Macro service.
-- Event Driver.
-
-
-![Shopping Cart Architecture](src/main/resources/design/Eccomerce_Architecture_v2.drawio.png)
-
-
-### Next Step E-commerce application architecture patterns
-
--  CQRS (Command Query Responsibility Segregation) to write product stock
-
-
-## Technologies used or to be used
+## used Technologies. 
 
 This project implemented the use of the following technologies
 
@@ -135,13 +93,12 @@ This project implemented the use of the following technologies
 - H2 Database for application
 - H2 Database for test (not yet implemented)
 - Redis
-- Mysql (not yet implemented)
-- Kafka (not yet implemented)
 - Lombok
 - spring-boot-starter-web
 - spring-boot-starter-data-jpa
 - Gradle
 - Github action workflow (to run CI in Github)
+- AWS Integration
 
 ## Other commands
 
@@ -228,46 +185,6 @@ aws secretsmanager create-secret --name shopping-cart-config --secret-string '{"
     ]
 }
 ```
-
-## Initial Challenge
-
-The exercise is used to:
-
-* Validate the correct usage of keywords like `final`, `synchronized`, among others as well as object-oriented programming best practices by applying OOP, SOLID, GRASP and design principles and patterns.
-
-* Validate coding best practices by promoting a refactor of the code taking advantage that the exercise has some code smells, on purpose, in order to challenge the candidate to find them and refactor the code with the objective to improve it.
-
-* Understand the unit testing practices of the candidate by making use of unit tests that should be completed based on unit testing best practices.
-
-* Understand that the candidate knows how to build java applications using modern application frameworks like Spring, Micronaut, Quarkus, Helidon, among others by applying coding best practices, design principles, and patterns.
-
-## Homework
-
-Create the application shopping-cart using the application framework of your preference. It could be Spring Boot, Quarkus, Micronaut, Helidon, or similar. Through a Rest API, the system should be able to manage shopping carts. That means that we can add and remove items to and from shopping carts as well as getting the state of them. This is an example of the shopping cart rendered through a UI (UI is out of scope).
-
-|Quantity  | Product |Unit Price |Subtotal|
-|--|--|--|--|
-| 2 | Banana     | 2,000.00 | 4,000.00  |
-| 3 | Orange     | 1,000.00 | 3,000.00  |
-| 3 | Strawberry | 2,000.00 |  6,000.00 |
-
-Total shopping cart: 13,000.00
-
-Total payment: 14,060.00
-
-The logic for the total and the total payment is given by the class com.perficient.shoppingcart.challenge.ShoppingCart.
-The application should:
-
-1. Expose the operations through a Rest API that follows the Rest API best practices.
-1. Have persistence including database scripts and configurations required for it.
-1. Contain unit tests as well as integration tests that follow the testing best practices.
-1. Have a README file that explains how to start the application and consume the services. If the API has a live specification like Swagger, it must specify the endpoint.
-1. Allow to get the total payment based on the payment method specified through the API. Remember that different payment methods derive in different values.
-1. Allow to add new payment methods by following design best practices and patterns.
-1. Implement security for the API and OWASP best practices.
-1. In general, have design and architecture best practices.
-1. Make assumptions and explain them in the README.
-1. Send the code compressed in a zip file to <evaluator’s email>. Source code only.
 
 ## Contributing
 
