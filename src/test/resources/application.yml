@@ -1,0 +1,44 @@
+spring:
+  cloud:
+    config:
+      overrideNone: true
+      overrideSystemProperties: false
+  datasource:
+    url: jdbc:h2:mem:TestDataBase;DATABASE_TO_UPPER=FALSE #jdbc:h2:file:./TestDataBase;DATABASE_TO_UPPER=FALSE
+    name: comm
+    driverClassName: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    properties:
+      hibernate:
+        default_schema:
+    database-platform: org.hibernate.dialect.H2Dialect
+  liquibase:
+    change-log: classpath:config/liquibase/changelog-master.xml
+  data:
+    redis:
+      database: 0
+      host: localhost
+      port: 6379
+      password: password
+      timeout: 60000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+app:
+  security:
+    jwt:
+      keystore-location: jwt-keystore.jks
+      keystore-password: password
+      key-alias: jwt-sign-key
+      private-key-passphrase: password
+
+config:
+  security:
+    jwt:
+      issue: "E-commerce Cart Shopping"
+      expiration: 900000
+      claim: "roles"

@@ -1,159 +1,258 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: Shopping Cart API Specification
+  title: Sample Ecommerce App
   description: >
-    'It is an *** API *** that exposes the basic functionality of a shopping cart designed for a distributed environment.'
-  termsOfService: https://github.com/albertbolanoss/aws-shopping-car/blob/main/LICENSE
+    'This is a ***sample ecommerce app API***.  You can find out more about Swagger at [swagger.io](http://swagger.io).
+    Description supports markdown markup. For example, you can use the `inline code` using back ticks.'
+  termsOfService: https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3/blob/main/LICENSE
   contact:
-    name: Labs Soft.
-    url: https://www.labssoft.com
-    email: support@labssoft.com
+    name: Packt Support
+    url: https://www.packt.com
+    email: support@packtpub.com
   license:
     name: MIT
-    url: https://github.com/albertbolanoss/aws-shopping-car/blob/main/LICENSE
+    url: https://github.com/PacktPublishing/Modern-API-Development-with-Spring-6-and-Spring-Boot-3/blob/main/LICENSE
   version: 1.0.0
 externalDocs:
-  description: Additional documentation about shopping car or author information
+  description: Any document link you want to generate along with API.
   url: http://swagger.io
 servers:
-  - url: http://localhost:8080
+  - url: https://ecommerce.swagger.io/v2
 tags:
-  - name: cart
-    description: 'the shopping cart transactions such as: Get items, Add item, Remove item'
+  - name: User
+    description: Operations about customer
+  - name: Cart
+    description: Operations about shopping cart
+  - name: Product
+    description: Operations about products
+  - name: Payment
+    description: Operations about products
+  - name: PaymentMethod
+    description: Operations about products
+  - name: Authentication
+    description: Operations about authentication
 
 paths:
-  /api/v1/cart:
+  /api/v1/user:
+    post:
+      tags: [ User ]
+      summary: Register a new user.
+      description: Register a new user to the E-Commerce App.
+      operationId: createUser
+      requestBody:
+        required: true
+        description: To create a new users
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddUserReq'
+      responses:
+        201:
+          description: Customer created successfuly
+        409:
+          description: If the customer already existed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReq'
+        404:
+          description: If customer does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReq'
     get:
-      tags: [ cart ]
-      summary: get cart items
-      description: get the user's cart items
-      operationId: getItems
+      tags: [ User ]
+      summary: Get the users that match with the filters.
+      description: Get the users from E-Commerce App.
+      operationId: getUsers
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+          required: true
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 0
+            maximum: 100
+          description: The numbers of items to return
+          required: true
+        - in: query
+          name: firstName
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 125
+          description: The customer first name
+        - in: query
+          name: lastName
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 125
+          description: The customer last name
+        - in: query
+          name: email
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 255
+          description: The customer email
+        - in: query
+          name: sort
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [lastName_asc, lastName_desc, firstName_asc, firstName_desc]
+          style: form
+          explode: false
+          description: Sort direction. Use asc for ascending, desc for descending. Additionally, lastName_asc and lastName_desc for sorting by last name, and firstName_asc and firstName_desc for sorting by first name.
       responses:
         200:
-          description: get the cart items successfully
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetUsersPageReq'
+
+  /api/v1/product:
+    post:
+      tags: [ Product ]
+      summary: Register a new product.
+      description: Register a new product to the E-Commerce App.
+      operationId: addProduct
+      requestBody:
+        required: true
+        description: Create a new Product
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddProductReq'
+      responses:
+        201:
+          description: Product created successfuly
+        409:
+          description: If the product already existed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReq'
+    get:
+      tags: [ Product ]
+      summary: Get the products that match with the filters.
+      description: Get the products from E-Commerce App.
+      operationId: getProducts
+      parameters:
+        - in: query
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+        - in: query
+          name: code
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+          description: The product code
+        - in: query
+          name: name
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 150
+          description: The product name
+      responses:
+        200:
+          description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GetItemResBody'
-        default:
-          description: Unexpected error.
-    delete:
-      tags: [ cart ]
-      summary: remove all items.
-      description: remove all items from the user's cart
-      operationId: removeAllItems
-      responses:
-        202:
-          description: all items were removed from the cart.
-        default:
-          description: Unexpected error.
+                  $ref: '#/components/schemas/ProductReq'
 
-  /api/v1/product/{productCode}/cart:
+  /api/v1/paymentmethod:
     post:
-      tags: [ cart ]
-      summary: add a product.
-      description: add a product to the user's cart
-      operationId: addProduct
-      parameters:
-        - name: productCode
-          in: path
-          description: the product code
-          required: true
-          schema:
-            type: string
+      tags: [ PaymentMethod ]
+      summary: Register a new payment method.
+      description: Register a new payment method to the E-Commerce App.
+      operationId: addPaymentMethod
       requestBody:
         required: true
+        description: Create a new Payment method
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddProductReqBody'
+              $ref: '#/components/schemas/AddPaymentMethodReq'
       responses:
         201:
-          description: the product was added successfully.
-        404:
-          description: the product was not found or is not available
+          description: Payment method created successfuly
+        409:
+          description: If the Payment method already existed.
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResBody'
-        400:
-          description: the information provided is incorrect or missing information.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResBody'
-        default:
-          description: Unexpected error.
-    patch:
-      tags: [ cart ]
-      summary: add a item(s).
-      description: add item(s) to the user's cart
-      operationId: addItem
-      parameters:
-        - name: productCode
-          in: path
-          description: the product code
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddItemReqBody'
-      responses:
-        201:
-          description: the item was updated successfully.
-        404:
-          description: the product was not found or is not available
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResBody'
-        400:
-          description: the information provided is incorrect or missing information.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResBody'
-        default:
-          description: Unexpected error.
-    delete:
-      tags: [ cart ]
-      summary: remove a product.
-      description: remove a product from the user's cart
-      operationId: removeProduct
-      parameters:
-        - name: productCode
-          in: path
-          description: the product code
-          required: true
-          schema:
-            type: string
-      responses:
-        202:
-          description: the product was removed from the user's cart.
-        404:
-          description: The product is not in the user's cart
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResBody'
-        default:
-          description: Unexpected error.
-
-  /api/v1/cart/checkout:
+                $ref: '#/components/schemas/ErrorReq'
     get:
-      tags: [ cart ]
-      summary: get checkout summary
-      description: get the checkout summary of the user's cart
-      operationId: getCheckout
+      tags: [ PaymentMethod ]
+      summary: Get the payment methods that match with the filters.
+      description: Get the payment methods  from E-Commerce App.
+      operationId: getPaymentMethods
       parameters:
         - in: query
-          name: paymentMethodQuery
+          name: offset
+          schema:
+            type: integer
+          description: The number of items to skip before starting to collect the result set
+        - in: query
+          name: limit
+          schema:
+            type: integer
+          description: The numbers of items to return
+        - in: query
+          name: code
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 100
+          description: The payment method code
+        - in: query
+          name: name
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 150
+          description: The payment method name
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentMethodReq'
+
+  /api/v1/items:
+    get:
+      tags: [ Cart ]
+      summary: Returns the list of items in customer's session shopping cart
+      description: Returns the items in session shopping cart of given customer
+      operationId: getCartItems
+      parameters:
+        - in: query
+          name: paymentMethodText
           schema:
             type: string
           style: form
@@ -162,118 +261,189 @@ paths:
           required: true
       responses:
         200:
-          description: the checkout summary was generated successfully
+          description: successful operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/GetCheckoutResBody'
-        default:
-          description: Unexpected error.
+                $ref: '#/components/schemas/PaymentSummaryReq'
+        404:
+          description: Given customer ID doesn't exist
+          content: { }
+    delete:
+      tags: [ Cart ]
+      summary: Delete all items from customer's session shopping cart
+      description: Delete all items from customer's session shopping cart
+      operationId: deleteAllItems
+      responses:
+        202:
+          description: Accepts the request, regardless of whether the specified item exists in the cart or not.
+        404:
+          description: Given customer ID doesn't exist
+          content: { }
+
+  /api/v1/product/{productId}/item:
+    post:
+      tags: [ Cart ]
+      summary: Add a new item to the cart.
+      description: Add a new product to the cart.
+      operationId: addItem
+      parameters:
+        - name: productId
+          in: path
+          description: Product Identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        201:
+          description: Item was updated successfuly
+        404:
+          description: If customer does not exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReq'
+    delete:
+      tags: [ Cart ]
+      summary: Delete an item in customer's session shopping cart
+      description: Delete an item in customer's session shopping cart
+      operationId: deleteItem
+      parameters:
+        - name: productId
+          in: path
+          description: Product Identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        202:
+          description: Accepts the request, regardless of whether the specified item exists in the cart or not.
+
+  /api/v1/checkout:
+    post:
+      tags: [ Cart ]
+      summary: Checkout the items in the customer's session cart
+      description: Checkout the items in the customer's session cart
+      operationId: checkout
+      requestBody:
+        required: true
+        description: Create a new Payment method
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CheckoutPayMethodReq'
+      responses:
+        201:
+          description: If the payment was successfuly
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentSummaryReq'
+        404:
+          description: If there aren't item in the cart for the customer.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorReq'
+
+  /api/v1/auth/token:
+    post:
+      tags: [ Authentication ]
+      summary: Signin the customer (user)
+      description: Signin the customer (user) that generates the JWT (access token) and refresh token, which can be used for accessing APIs.
+      operationId: signIn
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/SignInReq'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInReq'
+      responses:
+        200:
+          description: For user sign-in. Once successful, user receives the access and refresh token.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+    delete:
+      tags: [ Authentication ]
+      summary: Signouts the customer (user)
+      description: Signouts the customer (user). It removes the refresh token from DB. Last issued JWT should be removed from client end that if not removed last for given expiration time.
+      operationId: signOut
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        202:
+          description: Accepts the request for logout.
+
+  /api/v1/auth/token/refresh:
+    post:
+      tags: [ Authentication ]
+      summary: Provides new JWT based on valid refresh token.
+      description: Provides new JWT based on valid refresh token.
+      operationId: getAccessToken
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshToken'
+      responses:
+        200:
+          description: For successful operation.
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignedInUser'
 
 components:
   schemas:
-    AddProductReqBody:
-      description: The Add Product Request Body
+    AddUserReq:
+      description: Request object for new customer registration.
       type: object
       properties:
-        price:
-          description: The product price
-          type: number
-          format: number
-        quantity:
-          description: The quantity of product items to add
-          type: integer
-          format: int32
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 125
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 125
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+        phone:
+          type: string
+          maxLength: 40
+        password:
+          type: string
+          minLength: 1
+          maxLength: 255
       required:
-        - price
-        - quantity
-    AddItemReqBody:
-      description: The product information
-      type: object
-      properties:
-        quantity:
-          description: The quantity of product items to add
-          type: integer
-          format: int32
-      required:
-        - quantity
-    GetItemResBody:
-      description: the checkout items
-      type: object
-      properties:
-        code:
-          description: the product's code
-          type: string
-        quantity:
-          description: the item's price quantity
-          type: integer
-          format: int32
-        price:
-          description: the item's price per unit
-          type: number
-          format: number
-        subtotal:
-          description: the items subtotal
-          type: number
-          format: number
-    GetCheckoutItemResBody:
-      description: the checkout items
-      type: object
-      properties:
-        code:
-          description: the product's code
-          type: string
-        quantity:
-          description: the item's price quantity
-          type: integer
-          format: int32
-        price:
-          description: the item's price per unit
-          type: number
-          format: number
-        subtotal:
-          description: the item subtotal
-          type: number
-          format: number
-    GetCheckoutResBody:
-      description: the checkout summary
-      type: object
-      properties:
-        subtotal:
-          description: the gross total
-          type: number
-          format: number
-        discount:
-          description: the applied discount
-          type: number
-          format: number
-        total:
-          description: the total amount due
-          type: number
-          format: number
-        items:
-          description: the items
-          type: array
-          items:
-            $ref: '#/components/schemas/GetCheckoutItemResBody'
-    ProductItemReqBody:
-      description: the cart items
-      type: object
-      properties:
-        code:
-          description: the product's code
-          type: string
-        quantity:
-          description: the item's price quantity
-          type: integer
-          format: int32
-        price:
-          description: the item's price per unit
-          type: number
-          format: number
-    ErrorResBody:
+        - firstName
+        - lastName
+        - email
+        - password
+    ErrorReq:
       type: object
       properties:
         errorCode:
@@ -289,4 +459,230 @@ components:
           type: string
       xml:
         name: Error
-
+    ItemReq:
+      description: Items in shopping cart
+      type: object
+      properties:
+        id:
+          description: Item Identifier (Product)
+          type: string
+        quantity:
+          description: The item quantity
+          type: integer
+          format: int32
+        unitPrice:
+          description: The item's price per unit
+          type: number
+          format: number
+    AddProductReq:
+      description: Product to sell
+      type: object
+      properties:
+        name:
+          description: The product name
+          type: string
+          minLength: 1
+          maxLength: 150
+        code:
+          description: The product code
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          description: Product's description
+          type: string
+          minLength: 1
+          maxLength: 255
+        unitPrice:
+          description: The item's price per unit
+          type: number
+          format: number
+        count:
+          description: Product count
+          type: integer
+          format: int32
+      required:
+        - name
+        - code
+        - count
+    PaymentSummaryReq:
+      description: Customer Payment
+      type: object
+      properties:
+        total:
+          description: The item's price per unit
+          type: number
+          format: number
+        items:
+          description: Collection of items in cart.
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemReq'
+    AddPaymentMethodReq:
+      description: The payment methods.
+      type: object
+      properties:
+        code:
+          description: Payment method code
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          description: Payment method name
+          type: string
+          minLength: 1
+          maxLength: 150
+        description:
+          description: Payment method description
+          type: string
+          minLength: 1
+          maxLength: 255
+    UserReq:
+      description: The customer object.
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 36
+          description: Customer id
+        firstName:
+          type: string
+          minLength: 1
+          maxLength: 125
+        lastName:
+          type: string
+          minLength: 1
+          maxLength: 125
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 255
+        phone:
+          type: string
+          maxLength: 40
+    ProductReq:
+      description: Product instance
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 36
+          description: Product id
+        name:
+          description: The product name
+          type: string
+          minLength: 1
+          maxLength: 150
+        code:
+          description: The product code
+          type: string
+          minLength: 1
+          maxLength: 100
+        description:
+          description: Product's description
+          type: string
+          minLength: 1
+          maxLength: 255
+        unitPrice:
+          description: The item's price per unit
+          type: number
+          format: number
+        count:
+          description: Product count
+          type: integer
+          format: int32
+    PaymentMethodReq:
+      description: The payment methods.
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 36
+          description: Payment method id
+        code:
+          description: Payment method code
+          type: string
+          minLength: 1
+          maxLength: 100
+        name:
+          description: Payment method name
+          type: string
+          minLength: 1
+          maxLength: 150
+        description:
+          description: Payment method description
+          type: string
+          minLength: 1
+          maxLength: 255
+    GetUsersPageReq:
+      description: The page customer object.
+      type: object
+      properties:
+        totalItems:
+          type: integer
+          format: int64
+          description: The whole number of items
+        pageSize:
+          type: integer
+          format: int32
+          description: The page size
+        totalPages:
+          type: integer
+          format: int32
+          description: The total pages
+        pageNumber:
+          type: integer
+          format: int32
+          description: The current page
+        content:
+          description: Collection of items in cart.
+          type: array
+          items:
+            $ref: '#/components/schemas/UserReq'
+    CheckoutPayMethodReq:
+      description: the pay methods.
+      type: object
+      properties:
+        paymentMethodText:
+          type: string
+          minLength: 1
+          maxLength: 50
+      required:
+        - paymentMethodText
+    SignedInUser:
+      description: Signed-in user information
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
+        accessToken:
+          description: JWT Token aka access token
+          type: string
+        username:
+          description: User Name
+          type: string
+        userId:
+          description: User Identifier
+          type: string
+    RefreshToken:
+      description: Contains the refresh token
+      type: object
+      properties:
+        refreshToken:
+          description: Refresh Token
+          type: string
+    SignInReq:
+      description: Request body for Sign-in
+      type: object
+      properties:
+        username:
+          description: username of the User
+          type: string
+        password:
+          description: password of the User
+          type: string
