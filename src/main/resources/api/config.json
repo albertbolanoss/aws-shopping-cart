@@ -8,7 +8,7 @@
   "serializableModel": true,
   "useTags": true,
   "useGzipFeature" : true,
-  "hateoas": false,
+  "hateoas": true,
   "unhandledException": true,
   "useSpringBoot3": true,
   "useSwaggerUI": true,

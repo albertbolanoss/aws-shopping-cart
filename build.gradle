@@ -3,23 +3,17 @@ plugins {
     id 'org.springframework.boot' version '3.2.3'
     id 'io.spring.dependency-management' version '1.1.4'
     id 'org.hidetake.swagger.generator' version '2.19.2'
-    id 'war'
 }
 
-group = 'com.labs.shoppingcart'
+group = 'com.perficient.shoppingcart'
 version = '0.0.1-SNAPSHOT'
-
-group = 'org.example'
-version = '1.0.0'
 
 java {
     sourceCompatibility = '17'
 }
 
 ext {
-    springBootVersion = '3.2.5'
-    awsSdkVersion = '2.25.40'
-    openApiVersion = '3.0.0'
+    springVersion = '3.2.4'
 }
 
 processResources {
@@ -55,38 +49,47 @@ repositories {
 }
 
 dependencies {
-    // Spring Framework
     implementation "org.springframework.boot:spring-boot-starter-web"
-    implementation "org.springframework.boot:spring-boot-starter-validation:$springBootVersion"
-    implementation "org.springframework.boot:spring-boot-starter-hateoas:$springBootVersion"
+    developmentOnly "org.springframework.boot:spring-boot-devtools:$springVersion"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:$springVersion"
+    implementation "org.springframework.boot:spring-boot-starter-data-jpa:$springVersion"
+    implementation "org.springframework.boot:spring-boot-starter-cache:$springVersion"
+    implementation "org.springframework.boot:spring-boot-starter-data-redis:$springVersion"
+
+    implementation "org.springframework.boot:spring-boot-starter-security"
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.auth0:java-jwt:4.3.0'
+
 
     // OpenAPI
-    implementation "io.springfox:springfox-oas:$openApiVersion"
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
-    implementation 'org.springdoc:springdoc-openapi-data-rest:1.8.0'
     swaggerCodegen 'org.openapitools:openapi-generator-cli:6.2.1'
-
-    // AWS SDK
-    implementation "software.amazon.awssdk:dynamodb:$awsSdkVersion"
-
-    // Other implementation dependencies
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.15.4'
-
-    // tests
-    testImplementation "org.springframework.boot:spring-boot-starter-test:$springBootVersion"
-    testImplementation platform('org.junit:junit-bom:5.9.1')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testImplementation 'net.datafaker:datafaker:2.1.0'
-
-    // Compile, and annotationProcessor, and developmentOnly
     compileOnly 'io.swagger:swagger-annotations:1.6.4'
     compileOnly 'org.openapitools:jackson-databind-nullable:0.2.3'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+    implementation 'org.springframework.boot:spring-boot-starter-hateoas'
+    implementation 'io.springfox:springfox-oas:3.0.0'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
+    implementation 'org.springdoc:springdoc-openapi-data-rest:1.8.0'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok:1.18.32'
     annotationProcessor 'org.projectlombok:lombok:1.18.20'
-    developmentOnly "org.springframework.boot:spring-boot-devtools:$springBootVersion"
+
+    // H2 Driver
+    runtimeOnly 'com.h2database:h2:2.2.224'
+
+    // Liquibase Migration
+    implementation 'org.liquibase:liquibase-core:4.26.0'
+
+    implementation 'net.datafaker:datafaker:2.1.0'
+
+    // AWS
+    implementation 'io.awspring.cloud:spring-cloud-starter-aws-secrets-manager-config:2.4.4'
 
 }
 
-test {
+tasks.named('test') {
     useJUnitPlatform()
 }
