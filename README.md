@@ -185,6 +185,47 @@ aws secretsmanager create-secret --name shopping-cart-config --secret-string '{"
     ]
 }
 ```
+## Using Kafka Stream Design
+
+Tool: https://mermaid.live/
+
+```mermaid
+graph TD
+    subgraph API Layer
+        StockAPI["Stock API"]
+
+        ShoppingCartAPI["Shopping Cart API"]
+    end
+
+    subgraph Kafka
+        StockUpdates["KTable: product_stock"]
+        ShoppingCartStream["Topic: shopping_cart"]
+        PaymentStream["Topic: Payment"]
+        
+    end
+
+    subgraph Business Logic
+        StockService["Stock Service (Block stock and scheduled payment timeout)"]
+    
+        PaymentService["Payment Service"]
+        
+    end
+
+    StockAPI -->|Update stock items| StockUpdates
+
+    ShoppingCartAPI -->|Checkout cart items| ShoppingCartStream
+
+    ShoppingCartAPI -->|Pay cart items| PaymentStream
+
+
+    ShoppingCartStream -->|Block stock items| StockService
+    
+    PaymentStream -->|Pay| PaymentService
+
+    PaymentService -->|Unblock stock items| StockUpdates
+
+    StockService -->|Payment timeout| StockUpdates
+  ```  
 
 ## Contributing
 
