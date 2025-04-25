@@ -197,7 +197,7 @@ graph TD
         ShoppingCartAPI["Shopping Cart API"]
     end
 
-    subgraph Kafka
+    subgraph Kafka Cluster
         StockUpdates["KTable: product_stock"]
         ShoppingCartStream["Topic: shopping_cart"]
         PaymentStream["Topic: Payment"]
@@ -224,7 +224,7 @@ graph TD
 
     PaymentService -->|Unblock stock items| StockUpdates
 
-    StockService -->|Payment timeout| StockUpdates
+    StockService -->|Checkout timeout| StockUpdates
   ```  
 
 ## Contributing
